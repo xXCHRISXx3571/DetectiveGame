@@ -45,13 +45,13 @@ string Pista::getNombre() {
 string Pista::getDescriocionEfecto() {
     switch (tipo) {
         case HUELLA:
-            return "Deja una huella digital en el lugar del crimen";
+            return "reduce tu puntuacion a la mitad";
         case COARTADA:
-            return "Prueba de presencia en el lugar del crimen";
+            return "elimina dos tablones en el tablero";
         case TESTIMONIO:
-            return "Información obtenida de un testigo";
+            return "tu puntaje se diplica o se vuelve 0";
         case PRUEBA_FORENSE:
-            return "Evidencia científica recolectada del lugar del crimen";
+            return "el detective se teletransporta a una casilla aleatoria";
         default:
             return "";
     }
