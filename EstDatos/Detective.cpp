@@ -98,7 +98,7 @@ void Detective::usarPista() {
     Pista p = pilaDeEvidencias.desapilar();
 
     cout << "Usaste: " << p.getNombre() << endl;
-    cout << "Efecto: " << p.getDescriocionEfecto() << endl;
+    cout << "Efecto: " << p.getDescripcionEfecto() << endl;
 
     switch (p.tipo) {
         case HUELLA:

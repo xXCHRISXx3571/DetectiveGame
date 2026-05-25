@@ -4,7 +4,7 @@
 #include <string>
 using namespace std;
 
-enum tipoPista {
+enum TipoPista {
     HUELLA,
     COARTADA,
     TESTIMONIO,
@@ -12,17 +12,17 @@ enum tipoPista {
 };
 
 class Pista {
-    public:
-        tipoPista tipo;
-        bool recogida;
-        bool visible;
+public:
+    TipoPista tipo;
+    bool recogida;
+    bool visible;
 
-        Pista();
-        Pista(tipoPista t);
+    Pista();
+    Pista(TipoPista t);
 
-        char getSimboloTablero();
-        string getNombre();
-        string getDescriocionEfecto();     
-};    
+    char getSimboloTablero();
+    string getNombre();
+    string getDescripcionEfecto();
+};
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef NODO_H
 #define NODO_H
 
-class pista;
+class Pista;
 
 class Nodo {
 
@@ -11,8 +11,8 @@ public:
     bool descubierto;
     bool tienePista;
     bool tieneTestigo;
-    
-    pista* pista;
+
+    Pista* pista;
     Nodo* arriba;
     Nodo* abajo;
     Nodo* izquierda;
