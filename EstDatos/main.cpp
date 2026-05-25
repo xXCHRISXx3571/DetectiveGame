@@ -16,9 +16,6 @@ using namespace std;
 const int FILAS = 9;
 const int COLUMNAS = 9;
 
-// =============================================
-// IMPRIMIR TABLERO
-// =============================================
 void imprimirTablero(Nodo* tablero[FILAS][COLUMNAS], Detective& det) {
 
     det.mostrarPuntuacion();
@@ -45,9 +42,6 @@ void imprimirTablero(Nodo* tablero[FILAS][COLUMNAS], Detective& det) {
     cout << "# # # # # # # # # # #" << endl;
 }
 
-// =============================================
-// COLOCAR CALLEJONES CERRADOS (16 en total)
-// =============================================
 void colocarCallejones(Nodo* tablero[FILAS][COLUMNAS]) {
     int colocados = 0;
     while (colocados < 16) {
@@ -60,9 +54,6 @@ void colocarCallejones(Nodo* tablero[FILAS][COLUMNAS]) {
     }
 }
 
-// =============================================
-// COLOCAR PISTAS (10 en total, ocultas)
-// =============================================
 void colocarPistas(Nodo* tablero[FILAS][COLUMNAS]) {
     TipoPista tipos[4] = {HUELLA, COARTADA, TESTIMONIO, PRUEBA_FORENSE};
     int colocados = 0;
@@ -77,9 +68,6 @@ void colocarPistas(Nodo* tablero[FILAS][COLUMNAS]) {
     }
 }
 
-// =============================================
-// COLOCAR TESTIGOS (5 en total)
-// =============================================
 void colocarTestigos(Nodo* tablero[FILAS][COLUMNAS]) {
     string nombresTestigos[5] = {"Ana", "Luis", "Pedro", "Maria", "Jose"};
     int colocados = 0;
@@ -94,9 +82,6 @@ void colocarTestigos(Nodo* tablero[FILAS][COLUMNAS]) {
     }
 }
 
-// =============================================
-// ELIMINAR 2 CALLEJONES (efecto Coartada)
-// =============================================
 void eliminarCallejones(Nodo* tablero[FILAS][COLUMNAS]) {
     int eliminados = 0;
     int intentos = 0;
@@ -113,9 +98,6 @@ void eliminarCallejones(Nodo* tablero[FILAS][COLUMNAS]) {
     cout << "Se eliminaron " << eliminados << " callejones del tablero." << endl;
 }
 
-// =============================================
-// TELETRANSPORTAR DETECTIVE (efecto Prueba Forense)
-// =============================================
 void teletransportar(Nodo* tablero[FILAS][COLUMNAS], Detective& det) {
     int intentos = 0;
     while (intentos < 100) {
@@ -132,9 +114,6 @@ void teletransportar(Nodo* tablero[FILAS][COLUMNAS], Detective& det) {
     }
 }
 
-// =============================================
-// RESETEAR MAPA (cuando se usa una pista con X)
-// =============================================
 void resetearMapa(Nodo* tablero[FILAS][COLUMNAS]) {
     for (int i = 0; i < FILAS; i++) {
         for (int j = 0; j < COLUMNAS; j++) {
@@ -146,9 +125,6 @@ void resetearMapa(Nodo* tablero[FILAS][COLUMNAS]) {
     }
 }
 
-// =============================================
-// RECOLOCAR PISTA EN LUGAR ALEATORIO
-// =============================================
 void recolocarPista(Nodo* tablero[FILAS][COLUMNAS], Pista p) {
     int intentos = 0;
     while (intentos < 100) {
@@ -163,21 +139,16 @@ void recolocarPista(Nodo* tablero[FILAS][COLUMNAS], Pista p) {
     }
 }
 
-// =============================================
-// MAIN
-// =============================================
 int main() {
 
     srand(time(0));
 
-    // --- CREAR TABLERO ---
     Nodo* tablero[FILAS][COLUMNAS];
 
     for (int i = 0; i < FILAS; i++)
         for (int j = 0; j < COLUMNAS; j++)
             tablero[i][j] = new Nodo();
 
-    // --- CONECTAR NODOS ---
     for (int i = 0; i < FILAS; i++) {
         for (int j = 0; j < COLUMNAS; j++) {
             if (i > 0) tablero[i][j]->arriba = tablero[i-1][j];
@@ -187,17 +158,14 @@ int main() {
         }
     }
 
-    // --- COLOCAR ELEMENTOS ---
     colocarCallejones(tablero);
     colocarPistas(tablero);
     colocarTestigos(tablero);
 
-    // --- CREAR DETECTIVE ---
     string nombreDetective;
     cout << "Ingresa el nombre del detective: ";
     cin >> nombreDetective;
 
-    // Posicion aleatoria que no tenga pista ni testigo ni callejon
     int fD, cD;
     do {
         fD = rand() % FILAS;
@@ -209,7 +177,6 @@ int main() {
     Detective detective(nombreDetective, tablero[fD][cD]);
     detective.posicion->descubierto = true;
 
-    // --- CREAR SOSPECHOSOS ---
     Sospechoso candidatos[10] = {
         Sospechoso("Carlos",   "alto",  "negro",   "clara",  "grande",     "masculino", "diestro"),
         Sospechoso("Diana",    "alta",  "rubio",   "clara",  "respingada", "femenino",  "zurda"),
@@ -236,7 +203,6 @@ int main() {
         }
     }
 
-    // Marcar culpable al azar
     vector<string> nombresInsertados;
     for (int i = 0; i < 10; i++)
         if (usado[i]) nombresInsertados.push_back(candidatos[i].nombre);
@@ -244,7 +210,6 @@ int main() {
     Sospechoso* culpable = tablaHash.buscar(nombresInsertados[rand() % 8]);
     if (culpable != nullptr) culpable->esCulpable = true;
 
-    // Atributos del culpable para revelar uno a uno
     string atributosCulpable[6];
     if (culpable != nullptr) {
         atributosCulpable[0] = culpable->estatura;
@@ -256,10 +221,8 @@ int main() {
     }
     int atributoActual = 0;
 
-    // --- COLA DE TESTIGOS ---
     ColaTestigos colaTestigos;
 
-    // Testigos predefinidos con declaraciones del culpable
     string declaraciones[5] = {
         atributosCulpable[0],
         atributosCulpable[1],
@@ -268,18 +231,13 @@ int main() {
         atributosCulpable[4]
     };
 
-    // --- ABB HISTORIAL ---
     ABB historial;
 
-    // Verificar si el detective ya jugo antes
     historial.buscarDetective(nombreDetective);
 
     int pistasRecogidas = 0;
     char movimiento;
 
-    // =============================================
-    // BUCLE PRINCIPAL DEL JUEGO
-    // =============================================
     while (pistasRecogidas < 10) {
 
         system("cls");
@@ -294,21 +252,18 @@ int main() {
 
         if (movimiento == 'Q') break;
 
-        // --- VER PISTAS (T) ---
         if (movimiento == 'T') {
             detective.verPistas();
             system("pause");
             continue;
         }
 
-        // --- VER SOSPECHOSOS (S) ---
         if (movimiento == 'S') {
             tablaHash.mostrarTodos();
             system("pause");
             continue;
         }
 
-        // --- INTERROGAR TESTIGO (I) ---
         if (movimiento == 'I') {
             if (!colaTestigos.estaVacia()) {
                 Testigo t = colaTestigos.desencolar();
@@ -321,7 +276,6 @@ int main() {
             continue;
         }
 
-        // --- USAR PISTA (X) ---
         if (movimiento == 'X') {
             if (!detective.pilaDeEvidencias.estaVacia()) {
                 Pista p = detective.pilaDeEvidencias.desapilar();
@@ -353,7 +307,6 @@ int main() {
                         break;
                 }
 
-                // La pista vuelve al mapa y se resetea
                 recolocarPista(tablero, p);
                 resetearMapa(tablero);
                 pistasRecogidas--;
@@ -365,7 +318,6 @@ int main() {
             continue;
         }
 
-        // --- MOVIMIENTO ---
         Nodo* siguiente = nullptr;
 
         if (movimiento == 'W') siguiente = detective.posicion->arriba;
@@ -387,26 +339,22 @@ int main() {
             continue;
         }
 
-        // Mover detective
         detective.posicion = siguiente;
         detective.posicion->descubierto = true;
         if (detective.posicion->contenido == 'o')
             detective.posicion->contenido = ' ';
         detective.sumarPunto();
 
-        // Verificar si hay pista
         if (detective.posicion->tienePista && detective.posicion->pista != nullptr) {
             Pista p = *(detective.posicion->pista);
             detective.recogerPista(p);
             pistasRecogidas++;
 
-            // Revelar atributo del culpable
             if (atributoActual < 6) {
                 tablaHash.revelarAtributo(atributosCulpable[atributoActual]);
                 atributoActual++;
             }
 
-            // Limpiar pista del nodo
             detective.posicion->tienePista = false;
             delete detective.posicion->pista;
             detective.posicion->pista = nullptr;
@@ -415,7 +363,6 @@ int main() {
             system("pause");
         }
 
-        // Verificar si hay testigo
         if (detective.posicion->tieneTestigo) {
             string decl = "";
             if (atributoActual < 6) decl = atributosCulpable[atributoActual];
@@ -426,9 +373,6 @@ int main() {
         }
     }
 
-    // =============================================
-    // FASE DE ACUSACION
-    // =============================================
     system("cls");
     cout << "\n" << detective.nombre << ", has recolectado las 10 pistas. Es momento de acusar.\n" << endl;
     tablaHash.mostrarTodos();
@@ -449,7 +393,6 @@ int main() {
 
     cout << "Puntaje final: " << detective.puntuacion << " movimientos." << endl;
 
-    // Guardar en historial
     historial.guardarPuntaje(detective.nombre, detective.puntuacion);
     historial.mostrarTodos();
 

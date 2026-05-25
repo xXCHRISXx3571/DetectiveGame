@@ -9,7 +9,6 @@ TablaHash::TablaHash() {
     for (int i = 0; i < 6; i++) pistasCulpable[i] = "";
 }
 
-// Funcion hash: suma los valores ASCII del nombre y saca el modulo
 int TablaHash::hashFuncion(string nombre) {
     int suma = 0;
     for (int i = 0; i < nombre.size(); i++) {
@@ -23,7 +22,6 @@ void TablaHash::insertar(Sospechoso s) {
     tabla[indice].push_back(s);
 }
 
-// Busqueda O(1) promedio - el proyecto pide mostrar esto en sustentacion
 Sospechoso* TablaHash::buscar(string nombre) {
     int indice = hashFuncion(nombre);
     cout << "Buscando en indice: " << indice << " (O(1) promedio)" << endl;
@@ -33,7 +31,7 @@ Sospechoso* TablaHash::buscar(string nombre) {
             return &s;
         }
     }
-    return nullptr; // No encontrado
+    return nullptr;
 }
 
 void TablaHash::revelarAtributo(string atributo) {
@@ -64,8 +62,7 @@ void TablaHash::mostrarTodos() {
         for (auto& s : tabla[i]) {
             cout << " " << s.nombre;
             if (s.esCulpable) {
-                // Solo para debug, en juego real no mostrar esto
-                // cout << " (CULPABLE)";
+
             }
             cout << endl;
         }

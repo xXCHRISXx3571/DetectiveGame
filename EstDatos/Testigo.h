@@ -7,7 +7,7 @@ using namespace std;
 class Testigo {
 public:
     string nombre;
-    string declaracion;  // Atributo del culpable que sabe
+    string declaracion;
 
     Testigo();
     Testigo(string nombre, string declaracion);

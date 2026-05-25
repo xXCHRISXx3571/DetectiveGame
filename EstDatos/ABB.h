@@ -23,7 +23,6 @@ class ABB {
 private:
     NodoABB* raiz;
 
-    // Metodos privados recursivos
     NodoABB* insertar(NodoABB* nodo, string nombre, int puntaje);
     NodoABB* buscar(NodoABB* nodo, string nombre);
     void mostrarOrdenado(NodoABB* nodo); // Inorden = menor a mayor

@@ -8,20 +8,20 @@ using namespace std;
 
 class TablaHash {
 private:
-    // Cada posicion del vector tiene una lista (para manejar colisiones)
+
     vector<list<Sospechoso>> tabla;
     int capacidad;
-    int atributosRevelados;     // Cuantos atributos del culpable se han revelado
-    string pistasCulpable[6];   // Atributos revelados del culpable
+    int atributosRevelados;
+    string pistasCulpable[6];
 
-    int hashFuncion(string nombre); // Convierte nombre en indice
+    int hashFuncion(string nombre);
 
 public:
     TablaHash();
     void insertar(Sospechoso s);
-    Sospechoso* buscar(string nombre);  // Busqueda O(1) promedio
-    void mostrarTodos();                // Para tecla S
-    void revelarAtributo(string atributo); // Cuando se recoge pista
+    Sospechoso* buscar(string nombre);
+    void mostrarTodos();
+    void revelarAtributo(string atributo);
     void mostrarAtributosRevelados();
     string getNombreCulpable();
 };

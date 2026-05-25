@@ -4,13 +4,11 @@ ABB::ABB() {
     raiz = nullptr;
 }
 
-// Insercion por puntaje (menor puntaje = izquierda)
 NodoABB* ABB::insertar(NodoABB* nodo, string nombre, int puntaje) {
     if (nodo == nullptr) {
         return new NodoABB(nombre, puntaje);
     }
 
-    // Si el detective ya existe, conservar el mejor (menor) puntaje
     if (nodo->nombreDetective == nombre) {
         if (puntaje < nodo->mejorPuntaje) {
             nodo->mejorPuntaje = puntaje;
@@ -18,7 +16,6 @@ NodoABB* ABB::insertar(NodoABB* nodo, string nombre, int puntaje) {
         return nodo;
     }
 
-    // Ordenar por puntaje
     if (puntaje < nodo->mejorPuntaje) {
         nodo->izquierda = insertar(nodo->izquierda, nombre, puntaje);
     } else {
@@ -38,7 +35,6 @@ NodoABB* ABB::buscar(NodoABB* nodo, string nombre) {
     return buscar(nodo->derecha, nombre);
 }
 
-// Inorden: izquierda -> raiz -> derecha = menor a mayor puntaje
 void ABB::mostrarOrdenado(NodoABB* nodo) {
     if (nodo == nullptr) return;
     mostrarOrdenado(nodo->izquierda);

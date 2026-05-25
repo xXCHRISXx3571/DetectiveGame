@@ -11,8 +11,8 @@ private:
     queue<Testigo> cola;
 
 public:
-    void encolar(Testigo t);      // Cuando detective pisa al testigo
-    Testigo desencolar();         // Cuando usuario presiona I
+    void encolar(Testigo t);
+    Testigo desencolar();
     bool estaVacia();
     int tamanio();
 };
