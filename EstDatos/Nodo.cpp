@@ -13,4 +13,11 @@ Nodo::Nodo() {
     abajo = nullptr;
     izquierda = nullptr;
     derecha = nullptr;
+    fila = 0;
+    columna = 0;
+}
+
+Nodo::Nodo(int fila, int columna) : Nodo() {
+    this->fila = fila;
+    this->columna = columna;
 }

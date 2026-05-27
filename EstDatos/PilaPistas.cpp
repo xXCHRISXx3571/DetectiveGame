@@ -25,17 +25,16 @@ int PilaPistas::tamano() {
 }
 
 void PilaPistas::mostrarPila() {
-    stack<Pista> temo = pila;
+    stack<Pista> temporal = pila;
     stack<Pista> invertida;
-    while (!temo.empty()) {
-        invertida.push(temo.top());
-        temo.pop();
+    while (!temporal.empty()) {
+        invertida.push(temporal.top());
+        temporal.pop();
     }
 
     cout << "['# #']" << endl;
     cout << "['# #']" << endl;
 
-    bool esPrimera = true;
     int total = invertida.size();
     int contador = 0;
 

@@ -20,7 +20,6 @@ public:
                string piel, string nariz, string sexo, string mano);
 
     void mostrar();
-    void mostrarConAtributos(string atributos[]);
 };
 
 #endif

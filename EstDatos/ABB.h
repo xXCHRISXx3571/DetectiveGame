@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 using namespace std;
 
 struct NodoABB {
@@ -25,10 +26,12 @@ private:
 
     NodoABB* insertar(NodoABB* nodo, string nombre, int puntaje);
     NodoABB* buscar(NodoABB* nodo, string nombre);
-    void mostrarOrdenado(NodoABB* nodo); // Inorden = menor a mayor
+    void recolectar(NodoABB* nodo, vector<NodoABB*>& datos);
+    void liberar(NodoABB* nodo);
 
 public:
     ABB();
+    ~ABB();
     void guardarPuntaje(string nombre, int puntaje);
     void buscarDetective(string nombre);
     void mostrarTodos();

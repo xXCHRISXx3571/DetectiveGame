@@ -1,7 +1,19 @@
 #include "ABB.h"
+#include <algorithm>
 
 ABB::ABB() {
     raiz = nullptr;
+}
+
+ABB::~ABB() {
+    liberar(raiz);
+}
+
+void ABB::liberar(NodoABB* nodo) {
+    if (nodo == nullptr) return;
+    liberar(nodo->izquierda);
+    liberar(nodo->derecha);
+    delete nodo;
 }
 
 NodoABB* ABB::insertar(NodoABB* nodo, string nombre, int puntaje) {
@@ -35,15 +47,25 @@ NodoABB* ABB::buscar(NodoABB* nodo, string nombre) {
     return buscar(nodo->derecha, nombre);
 }
 
-void ABB::mostrarOrdenado(NodoABB* nodo) {
+void ABB::recolectar(NodoABB* nodo, vector<NodoABB*>& datos) {
     if (nodo == nullptr) return;
-    mostrarOrdenado(nodo->izquierda);
-    cout << " " << nodo->nombreDetective
-         << " | Puntaje: " << nodo->mejorPuntaje << endl;
-    mostrarOrdenado(nodo->derecha);
+    recolectar(nodo->izquierda, datos);
+    datos.push_back(nodo);
+    recolectar(nodo->derecha, datos);
 }
 
 void ABB::guardarPuntaje(string nombre, int puntaje) {
+    NodoABB* existente = buscar(raiz, nombre);
+    if (existente != nullptr) {
+        if (puntaje < existente->mejorPuntaje) {
+            existente->mejorPuntaje = puntaje;
+            cout << "Nuevo mejor puntaje guardado para " << nombre << endl;
+        } else {
+            cout << "Se conserva el mejor puntaje anterior de " << nombre << endl;
+        }
+        return;
+    }
+
     raiz = insertar(raiz, nombre, puntaje);
     cout << "Puntaje guardado para " << nombre << endl;
 }
@@ -64,5 +86,15 @@ void ABB::mostrarTodos() {
         return;
     }
     cout << "\nHistorial de detectives (menor a mayor puntaje):" << endl;
-    mostrarOrdenado(raiz);
+
+    vector<NodoABB*> datos;
+    recolectar(raiz, datos);
+    sort(datos.begin(), datos.end(), [](NodoABB* a, NodoABB* b) {
+        return a->mejorPuntaje < b->mejorPuntaje;
+    });
+
+    for (NodoABB* nodo : datos) {
+        cout << " " << nodo->nombreDetective
+             << " | Puntaje: " << nodo->mejorPuntaje << endl;
+    }
 }

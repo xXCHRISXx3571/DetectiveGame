@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 4.2)
-project(estrct)
+cmake_minimum_required(VERSION 3.10)
+project(detective)
 
 set(CMAKE_CXX_STANDARD 14)
 
 include_directories(.)
 
-add_executable(estrct
+add_executable(detective
         ABB.cpp
         ABB.h
         ColaTestigos.cpp
@@ -21,6 +21,8 @@ add_executable(estrct
         Pista.h
         Sospechoso.cpp
         Sospechoso.h
+        Tablero.cpp
+        Tablero.h
         TablaHash.cpp
         TablaHash.h
         Testigo.cpp

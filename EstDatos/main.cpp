@@ -1,182 +1,58 @@
-#include <iostream>
+#include <cctype>
 #include <cstdlib>
 #include <ctime>
-#include <cctype>
-#include <vector>
+#include <iostream>
 #include <string>
+#include <vector>
 
-#include "Nodo.h"
-#include "Detective.h"
-#include "TablaHash.h"
-#include "ColaTestigos.h"
 #include "ABB.h"
+#include "ColaTestigos.h"
+#include "Detective.h"
+#include "Sospechoso.h"
+#include "TablaHash.h"
+#include "Tablero.h"
+#include "Testigo.h"
 
 using namespace std;
 
-const int FILAS = 9;
-const int COLUMNAS = 9;
+const int TOTAL_PISTAS = 10;
+const int TOTAL_ATRIBUTOS = 6;
 
-void imprimirTablero(Nodo* tablero[FILAS][COLUMNAS], Detective& det) {
-
-    det.mostrarPuntuacion();
-
-    cout << "# # # # # # # # # # #" << endl;
-
-    for (int i = 0; i < FILAS; i++) {
-        cout << "# ";
-        for (int j = 0; j < COLUMNAS; j++) {
-
-            if (tablero[i][j] == det.posicion) {
-                cout << "I "; // I de Investigador
-            }
-            else if (!tablero[i][j]->descubierto) {
-                cout << "o ";
-            }
-            else {
-                cout << tablero[i][j]->contenido << " ";
-            }
-        }
-        cout << "#" << endl;
-    }
-
-    cout << "# # # # # # # # # # #" << endl;
+void limpiarPantalla() {
+    system("cls");
 }
 
-void colocarCallejones(Nodo* tablero[FILAS][COLUMNAS]) {
-    int colocados = 0;
-    while (colocados < 16) {
-        int f = rand() % FILAS;
-        int c = rand() % COLUMNAS;
-        if (tablero[f][c]->contenido == 'o') {
-            tablero[f][c]->contenido = '|';
-            colocados++;
-        }
-    }
+void pausar() {
+    system("pause");
 }
 
-void colocarPistas(Nodo* tablero[FILAS][COLUMNAS]) {
-    TipoPista tipos[4] = {HUELLA, COARTADA, TESTIMONIO, PRUEBA_FORENSE};
-    int colocados = 0;
-    while (colocados < 10) {
-        int f = rand() % FILAS;
-        int c = rand() % COLUMNAS;
-        if (tablero[f][c]->contenido == 'o' && !tablero[f][c]->tienePista) {
-            tablero[f][c]->tienePista = true;
-            tablero[f][c]->pista = new Pista(tipos[rand() % 4]);
-            colocados++;
-        }
+string tomarAtributo(string atributos[], int& siguienteAtributo) {
+    if (siguienteAtributo >= TOTAL_ATRIBUTOS) {
+        return "";
     }
+
+    string atributo = atributos[siguienteAtributo];
+    siguienteAtributo++;
+    return atributo;
 }
 
-void colocarTestigos(Nodo* tablero[FILAS][COLUMNAS]) {
-    string nombresTestigos[5] = {"Ana", "Luis", "Pedro", "Maria", "Jose"};
-    int colocados = 0;
-    while (colocados < 5) {
-        int f = rand() % FILAS;
-        int c = rand() % COLUMNAS;
-        if (tablero[f][c]->contenido == 'o' && !tablero[f][c]->tienePista && !tablero[f][c]->tieneTestigo) {
-            tablero[f][c]->tieneTestigo = true;
-            tablero[f][c]->contenido = 'W';
-            colocados++;
-        }
+void revelarSiExiste(TablaHash& tablaHash, string atributo) {
+    if (atributo == "") {
+        cout << "Ya se revelaron todos los atributos del culpable." << endl;
+        return;
     }
+
+    tablaHash.revelarAtributo(atributo);
 }
 
-void eliminarCallejones(Nodo* tablero[FILAS][COLUMNAS]) {
-    int eliminados = 0;
-    int intentos = 0;
-    while (eliminados < 2 && intentos < 100) {
-        int f = rand() % FILAS;
-        int c = rand() % COLUMNAS;
-        if (tablero[f][c]->contenido == '|') {
-            tablero[f][c]->contenido = ' ';
-            tablero[f][c]->descubierto = true;
-            eliminados++;
-        }
-        intentos++;
-    }
-    cout << "Se eliminaron " << eliminados << " callejones del tablero." << endl;
+void mostrarMenu() {
+    cout << endl;
+    cout << "Movimiento: W=Arriba  S=Abajo  A=Izquierda  D=Derecha" << endl;
+    cout << "Acciones: T=Pistas  V=Sospechosos  I=Interrogar  X=Usar pista" << endl;
+    cout << "Historial: H=Ver todos  B=Buscar detective  Q=Salir" << endl;
 }
 
-void teletransportar(Nodo* tablero[FILAS][COLUMNAS], Detective& det) {
-    int intentos = 0;
-    while (intentos < 100) {
-        int f = rand() % FILAS;
-        int c = rand() % COLUMNAS;
-        if (tablero[f][c]->contenido == 'o' &&
-            !tablero[f][c]->tienePista &&
-            !tablero[f][c]->tieneTestigo) {
-            det.posicion = tablero[f][c];
-            cout << "El detective fue teletransportado!" << endl;
-            return;
-        }
-        intentos++;
-    }
-}
-
-void resetearMapa(Nodo* tablero[FILAS][COLUMNAS]) {
-    for (int i = 0; i < FILAS; i++) {
-        for (int j = 0; j < COLUMNAS; j++) {
-            if (tablero[i][j]->contenido == ' ') {
-                tablero[i][j]->contenido = 'o';
-                tablero[i][j]->descubierto = false;
-            }
-        }
-    }
-}
-
-void recolocarPista(Nodo* tablero[FILAS][COLUMNAS], Pista p) {
-    int intentos = 0;
-    while (intentos < 100) {
-        int f = rand() % FILAS;
-        int c = rand() % COLUMNAS;
-        if (tablero[f][c]->contenido == 'o' && !tablero[f][c]->tienePista) {
-            tablero[f][c]->tienePista = true;
-            tablero[f][c]->pista = new Pista(p.tipo);
-            return;
-        }
-        intentos++;
-    }
-}
-
-int main() {
-
-    srand(time(0));
-
-    Nodo* tablero[FILAS][COLUMNAS];
-
-    for (int i = 0; i < FILAS; i++)
-        for (int j = 0; j < COLUMNAS; j++)
-            tablero[i][j] = new Nodo();
-
-    for (int i = 0; i < FILAS; i++) {
-        for (int j = 0; j < COLUMNAS; j++) {
-            if (i > 0) tablero[i][j]->arriba = tablero[i-1][j];
-            if (i < FILAS-1) tablero[i][j]->abajo = tablero[i+1][j];
-            if (j > 0) tablero[i][j]->izquierda = tablero[i][j-1];
-            if (j < COLUMNAS-1) tablero[i][j]->derecha = tablero[i][j+1];
-        }
-    }
-
-    colocarCallejones(tablero);
-    colocarPistas(tablero);
-    colocarTestigos(tablero);
-
-    string nombreDetective;
-    cout << "Ingresa el nombre del detective: ";
-    cin >> nombreDetective;
-
-    int fD, cD;
-    do {
-        fD = rand() % FILAS;
-        cD = rand() % COLUMNAS;
-    } while (tablero[fD][cD]->contenido != 'o' ||
-             tablero[fD][cD]->tienePista ||
-             tablero[fD][cD]->tieneTestigo);
-
-    Detective detective(nombreDetective, tablero[fD][cD]);
-    detective.posicion->descubierto = true;
-
+void cargarSospechosos(TablaHash& tablaHash, Sospechoso*& culpable) {
     Sospechoso candidatos[10] = {
         Sospechoso("Carlos",   "alto",  "negro",   "clara",  "grande",     "masculino", "diestro"),
         Sospechoso("Diana",    "alta",  "rubio",   "clara",  "respingada", "femenino",  "zurda"),
@@ -190,212 +66,246 @@ int main() {
         Sospechoso("Laura",    "baja",  "rojo",    "morena", "grande",     "femenino",  "zurda")
     };
 
-    TablaHash tablaHash;
     bool usado[10] = {false};
-    int insertados = 0;
+    vector<string> nombresInsertados;
 
-    while (insertados < 8) {
-        int r = rand() % 10;
-        if (!usado[r]) {
-            usado[r] = true;
-            tablaHash.insertar(candidatos[r]);
-            insertados++;
+    while (nombresInsertados.size() < 8) {
+        int indice = rand() % 10;
+        if (!usado[indice]) {
+            usado[indice] = true;
+            tablaHash.insertar(candidatos[indice]);
+            nombresInsertados.push_back(candidatos[indice].nombre);
         }
     }
 
-    vector<string> nombresInsertados;
-    for (int i = 0; i < 10; i++)
-        if (usado[i]) nombresInsertados.push_back(candidatos[i].nombre);
-
-    Sospechoso* culpable = tablaHash.buscar(nombresInsertados[rand() % 8]);
-    if (culpable != nullptr) culpable->esCulpable = true;
-
-    string atributosCulpable[6];
+    string nombreCulpable = nombresInsertados[rand() % nombresInsertados.size()];
+    culpable = tablaHash.buscar(nombreCulpable, false);
     if (culpable != nullptr) {
-        atributosCulpable[0] = culpable->estatura;
-        atributosCulpable[1] = culpable->cabello;
-        atributosCulpable[2] = culpable->piel;
-        atributosCulpable[3] = culpable->nariz;
-        atributosCulpable[4] = culpable->sexo;
-        atributosCulpable[5] = culpable->mano;
+        culpable->esCulpable = true;
     }
-    int atributoActual = 0;
+}
 
-    ColaTestigos colaTestigos;
+Nodo* obtenerSiguiente(Nodo* posicion, char movimiento) {
+    if (movimiento == 'W') return posicion->arriba;
+    if (movimiento == 'S') return posicion->abajo;
+    if (movimiento == 'A') return posicion->izquierda;
+    if (movimiento == 'D') return posicion->derecha;
+    return nullptr;
+}
 
-    string declaraciones[5] = {
-        atributosCulpable[0],
-        atributosCulpable[1],
-        atributosCulpable[2],
-        atributosCulpable[3],
-        atributosCulpable[4]
-    };
+void usarPista(Detective& detective, Tablero& tablero, int& pistasRecogidas) {
+    if (detective.pilaDeEvidencias.estaVacia()) {
+        cout << "No tienes pistas para usar." << endl;
+        return;
+    }
 
-    ABB historial;
+    Pista pista = detective.pilaDeEvidencias.desapilar();
+    cout << "Usaste: " << pista.getNombre() << endl;
+    cout << "Efecto: " << pista.getDescripcionEfecto() << endl;
+
+    switch (pista.tipo) {
+        case HUELLA:
+            detective.puntuacion = detective.puntuacion / 2;
+            cout << "Tu puntaje ahora es: " << detective.puntuacion << endl;
+            break;
+
+        case COARTADA:
+            tablero.eliminarCallejones(2);
+            break;
+
+        case TESTIMONIO:
+            if (rand() % 2 == 0) {
+                detective.puntuacion = 0;
+                cout << "Mala suerte... puntaje a cero." << endl;
+            } else {
+                detective.puntuacion = detective.puntuacion * 2;
+                cout << "Puntaje duplicado a: " << detective.puntuacion << endl;
+            }
+            break;
+
+        case PRUEBA_FORENSE:
+            tablero.teletransportar(detective);
+            break;
+    }
+
+    tablero.recolocarPista(pista);
+    tablero.resetearMapa();
+    detective.posicion->descubierto = true;
+    pistasRecogidas--;
+}
+
+void jugarPartida(ABB& historial) {
+    Tablero tablero;
+    tablero.colocarCallejones();
+    tablero.colocarPistas();
+    tablero.colocarTestigos();
+
+    string nombreDetective;
+    cout << "Ingresa el nombre del detective: ";
+    cin >> nombreDetective;
 
     historial.buscarDetective(nombreDetective);
 
+    Nodo* posicionInicial = tablero.obtenerPosicionInicial();
+    Detective detective(nombreDetective, posicionInicial);
+    detective.posicion->descubierto = true;
+
+    TablaHash tablaHash;
+    Sospechoso* culpable = nullptr;
+    cargarSospechosos(tablaHash, culpable);
+
+    if (culpable == nullptr) {
+        cout << "No se pudo seleccionar culpable. La partida no puede continuar." << endl;
+        return;
+    }
+
+    string atributosCulpable[TOTAL_ATRIBUTOS] = {
+        culpable->estatura,
+        culpable->cabello,
+        culpable->piel,
+        culpable->nariz,
+        culpable->sexo,
+        culpable->mano
+    };
+
+    int siguienteAtributo = 0;
     int pistasRecogidas = 0;
-    char movimiento;
+    int testigosEncontrados = 0;
+    bool salir = false;
+    ColaTestigos colaTestigos;
 
-    while (pistasRecogidas < 10) {
+    while (pistasRecogidas < TOTAL_PISTAS && !salir) {
+        limpiarPantalla();
+        tablero.imprimir(detective);
+        mostrarMenu();
 
-        system("cls");
-        imprimirTablero(tablero, detective);
+        char accion;
+        cin >> accion;
+        accion = toupper(static_cast<unsigned char>(accion));
 
-        cout << endl;
-        cout << "W=Arriba  S=Abajo  A=Izquierda  D=Derecha" << endl;
-        cout << "T=Ver pistas  S=Ver sospechosos  I=Interrogar  X=Usar pista  Q=Salir" << endl;
-
-        cin >> movimiento;
-        movimiento = toupper(movimiento);
-
-        if (movimiento == 'Q') break;
-
-        if (movimiento == 'T') {
+        if (accion == 'Q') {
+            salir = true;
+        } else if (accion == 'T') {
             detective.verPistas();
-            system("pause");
-            continue;
-        }
-
-        if (movimiento == 'S') {
+            pausar();
+        } else if (accion == 'V') {
             tablaHash.mostrarTodos();
-            system("pause");
-            continue;
-        }
-
-        if (movimiento == 'I') {
+            pausar();
+        } else if (accion == 'H') {
+            historial.mostrarTodos();
+            pausar();
+        } else if (accion == 'B') {
+            string nombreBuscado;
+            cout << "Nombre del detective a buscar: ";
+            cin >> nombreBuscado;
+            historial.buscarDetective(nombreBuscado);
+            pausar();
+        } else if (accion == 'I') {
             if (!colaTestigos.estaVacia()) {
-                Testigo t = colaTestigos.desencolar();
-                t.mostrar();
-                tablaHash.revelarAtributo(t.declaracion);
+                Testigo testigo = colaTestigos.desencolar();
+                testigo.mostrar();
+                revelarSiExiste(tablaHash, testigo.declaracion);
             } else {
                 cout << "No hay testigos en la cola." << endl;
             }
-            system("pause");
-            continue;
-        }
+            pausar();
+        } else if (accion == 'X') {
+            usarPista(detective, tablero, pistasRecogidas);
+            pausar();
+        } else if (accion == 'W' || accion == 'S' || accion == 'A' || accion == 'D') {
+            Nodo* siguiente = obtenerSiguiente(detective.posicion, accion);
 
-        if (movimiento == 'X') {
-            if (!detective.pilaDeEvidencias.estaVacia()) {
-                Pista p = detective.pilaDeEvidencias.desapilar();
-                cout << "Usaste: " << p.getNombre() << endl;
-                cout << "Efecto: " << p.getDescripcionEfecto() << endl;
+            if (siguiente == nullptr) {
+                cout << "No puedes atravesar los edificios del borde." << endl;
+                pausar();
+            } else if (siguiente->contenido == '|') {
+                siguiente->descubierto = true;
+                detective.sumarPunto();
+                cout << "Hay un callejon cerrado, busca otra ruta!" << endl;
+                pausar();
+            } else {
+                detective.posicion = siguiente;
+                detective.posicion->descubierto = true;
+                detective.sumarPunto();
 
-                switch (p.tipo) {
-                    case HUELLA:
-                        detective.puntuacion = detective.puntuacion / 2;
-                        cout << "Tu puntaje ahora es: " << detective.puntuacion << endl;
-                        break;
-
-                    case COARTADA:
-                        eliminarCallejones(tablero);
-                        break;
-
-                    case TESTIMONIO:
-                        if (rand() % 2 == 0) {
-                            detective.puntuacion = 0;
-                            cout << "Mala suerte... puntaje a cero." << endl;
-                        } else {
-                            detective.puntuacion = detective.puntuacion * 2;
-                            cout << "Puntaje duplicado a: " << detective.puntuacion << endl;
-                        }
-                        break;
-
-                    case PRUEBA_FORENSE:
-                        teletransportar(tablero, detective);
-                        break;
+                if (detective.posicion->contenido == 'o') {
+                    detective.posicion->contenido = ' ';
                 }
 
-                recolocarPista(tablero, p);
-                resetearMapa(tablero);
-                pistasRecogidas--;
+                if (detective.posicion->tienePista && detective.posicion->pista != nullptr) {
+                    Pista pista = *(detective.posicion->pista);
+                    detective.recogerPista(pista);
+                    pistasRecogidas++;
+                    revelarSiExiste(tablaHash, tomarAtributo(atributosCulpable, siguienteAtributo));
 
-            } else {
-                cout << "No tienes pistas para usar." << endl;
+                    detective.posicion->tienePista = false;
+                    delete detective.posicion->pista;
+                    detective.posicion->pista = nullptr;
+                    detective.posicion->contenido = ' ';
+                    pausar();
+                }
+
+                if (detective.posicion->tieneTestigo) {
+                    testigosEncontrados++;
+                    Testigo testigo(
+                        "No. " + to_string(testigosEncontrados),
+                        tomarAtributo(atributosCulpable, siguienteAtributo)
+                    );
+                    colaTestigos.encolar(testigo);
+                    detective.posicion->tieneTestigo = false;
+                    detective.posicion->contenido = ' ';
+                    pausar();
+                }
             }
-            system("pause");
-            continue;
-        }
-
-        Nodo* siguiente = nullptr;
-
-        if (movimiento == 'W') siguiente = detective.posicion->arriba;
-        else if (movimiento == 'S') siguiente = detective.posicion->abajo;
-        else if (movimiento == 'A') siguiente = detective.posicion->izquierda;
-        else if (movimiento == 'D') siguiente = detective.posicion->derecha;
-
-        if (siguiente == nullptr) {
-            cout << "No puedes salir del mapa!" << endl;
-            system("pause");
-            continue;
-        }
-
-        if (siguiente->contenido == '|') {
-            siguiente->descubierto = true;
-            cout << "Hay un callejon cerrado, busca otra ruta!" << endl;
-            detective.sumarPunto();
-            system("pause");
-            continue;
-        }
-
-        detective.posicion = siguiente;
-        detective.posicion->descubierto = true;
-        if (detective.posicion->contenido == 'o')
-            detective.posicion->contenido = ' ';
-        detective.sumarPunto();
-
-        if (detective.posicion->tienePista && detective.posicion->pista != nullptr) {
-            Pista p = *(detective.posicion->pista);
-            detective.recogerPista(p);
-            pistasRecogidas++;
-
-            if (atributoActual < 6) {
-                tablaHash.revelarAtributo(atributosCulpable[atributoActual]);
-                atributoActual++;
-            }
-
-            detective.posicion->tienePista = false;
-            delete detective.posicion->pista;
-            detective.posicion->pista = nullptr;
-            detective.posicion->contenido = ' ';
-
-            system("pause");
-        }
-
-        if (detective.posicion->tieneTestigo) {
-            string decl = "";
-            if (atributoActual < 6) decl = atributosCulpable[atributoActual];
-            Testigo t("Testigo", decl);
-            colaTestigos.encolar(t);
-            detective.posicion->tieneTestigo = false;
-            detective.posicion->contenido = ' ';
+        } else {
+            cout << "Comando no valido." << endl;
+            pausar();
         }
     }
 
-    system("cls");
-    cout << "\n" << detective.nombre << ", has recolectado las 10 pistas. Es momento de acusar.\n" << endl;
+    limpiarPantalla();
+
+    if (salir) {
+        cout << "Partida cancelada. No se guarda puntaje porque el caso no finalizo." << endl;
+        return;
+    }
+
+    cout << "\n" << detective.nombre
+         << ", has recolectado las 10 pistas. Es momento de acusar.\n" << endl;
     tablaHash.mostrarTodos();
 
-    cout << "\n A quien acusas? > ";
+    cout << "\nA quien acusas? > ";
     string acusado;
     cin >> acusado;
 
     Sospechoso* sospechoso = tablaHash.buscar(acusado);
 
     if (sospechoso != nullptr && sospechoso->esCulpable) {
-        cout << "\n Caso resuelto! " << acusado << " era el culpable." << endl;
+        cout << "\nCaso resuelto! " << sospechoso->nombre << " era el culpable." << endl;
     } else {
-        cout << "\n Acusacion incorrecta. El caso se cierra como fracasado." << endl;
+        cout << "\nAcusacion incorrecta. El caso se cierra como fracasado." << endl;
         detective.puntuacion = detective.puntuacion * 2;
         cout << "Puntaje penalizado al doble: " << detective.puntuacion << endl;
     }
 
     cout << "Puntaje final: " << detective.puntuacion << " movimientos." << endl;
-
     historial.guardarPuntaje(detective.nombre, detective.puntuacion);
     historial.mostrarTodos();
+}
 
-    system("pause");
+int main() {
+    srand(static_cast<unsigned int>(time(0)));
+
+    ABB historial;
+    char continuar;
+
+    do {
+        jugarPartida(historial);
+        cout << "\nDeseas jugar otra partida? (S/N): ";
+        cin >> continuar;
+        continuar = toupper(static_cast<unsigned char>(continuar));
+    } while (continuar == 'S');
+
+    pausar();
     return 0;
 }

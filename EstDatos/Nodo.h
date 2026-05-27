@@ -17,8 +17,11 @@ public:
     Nodo* abajo;
     Nodo* izquierda;
     Nodo* derecha;
+    int fila;
+    int columna;
 
     Nodo();
+    Nodo(int fila, int columna);
 };
 
 #endif

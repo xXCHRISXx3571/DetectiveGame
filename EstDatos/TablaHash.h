@@ -15,11 +15,13 @@ private:
     string pistasCulpable[6];
 
     int hashFuncion(string nombre);
+    string normalizar(string texto);
+    bool atributoYaRevelado(string atributo);
 
 public:
     TablaHash();
     void insertar(Sospechoso s);
-    Sospechoso* buscar(string nombre);
+    Sospechoso* buscar(string nombre, bool mostrarProceso = true);
     void mostrarTodos();
     void revelarAtributo(string atributo);
     void mostrarAtributosRevelados();
